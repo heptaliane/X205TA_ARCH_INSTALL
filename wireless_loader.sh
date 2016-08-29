@@ -4,7 +4,7 @@
 # root is required
 #-----------
 
-GetEthenetInterface () {
+GetInterface () {
     NETWORK=`ip link`
     arr=( `echo $NETWORK`)
 
@@ -13,7 +13,7 @@ GetEthenetInterface () {
     do
         if [ $FLAG -eq 1 ]
         then
-            if [[ $arg =~ ^e ]]
+            if [[ $arg =~ ^$1 ]]
             then
                 echo ${arg:0:-1}
             fi
@@ -29,13 +29,13 @@ GetEthenetInterface () {
 
 
 InstallWirelessDriver () {
-    INTERFACE=`GetEthenetInterface`
+    ETHENET_iINTERFACE=`GetInterface e`
     if [ -z $INTERFACE ]
     then
         echo "ethenet interface is not found. Please check the connection."
         return 1
     else
-        sudo dhcpcd $INTERFACE
+        sudo dhcpcd $ETHENET_INTERFACE
     fi
 
     echo "download wireless driver"
@@ -61,17 +61,17 @@ InstallWirelessDriver () {
     rm -rf $FILE
 }
 
-ConfigureWirelessNetwork () {
-    sudo wifi-menu
-    if [ $? -ne 0 ]
-    then    
-        InstallWirelessDriver
-    fi
-}
+WIRELESS_INTERFACE=`GetInterface w`
+if [ -z $WIRELESS_INTERFACE ]
+then
+    InstallWirelessDriver
+    WIRELESS_INTERFACE=`GetInterface w`
+fi
 
-ping -c 2 -q www.google.com
+echo ping -c 2 -q -I $WIRELESS_INTERFACE  www.google.com
+ping -c 2 -q -I $WIRELESS_INTERFACE  www.google.com
 
 if [ $? -ne 0 ]
 then
-    ConfigureWirelessNetwork
+    sudo wifi-menu
 fi
