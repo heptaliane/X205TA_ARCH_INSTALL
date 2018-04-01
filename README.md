@@ -10,16 +10,16 @@ X205TAにArch Linuxをインストールする自分用のメモ
 4. [glub.cfg](https://github.com/heptaliane/X205TA_ARCH_INSTALL/blob/master/grub.cfg)をUSBの`/boot/glub/glub.cfg`に配置
 
 ## boot with install media
-
 1. F2キーを連打しながら電源を入れる
 2. Secure bootをdisabledにする
 3. USB controllerをEHCIにする
 4. インストールメディアを指定して起動
 
 ## before install process
-キーマップを日本語配列にします
-``` bash
-$ loadkeys jp106
+キーマップを日本語配列にします  
+また、起動時に有線に接続してください
+```
+# loadkeys jp106
 ```
 
 ## partition
@@ -37,11 +37,14 @@ $ loadkeys jp106
 `/home`を暗号化します
 
 ### prepare partation
-``` bash
-cryptsetup open --type plain /dev/mmcblk2p1 container --key-file /dev/random
-dd if=/dev/zero of=/dev/mapper/container status=progress
+```
+# cryptsetup open --type plain /dev/mmcblk2p1 container --key-file /dev/random
+# dd if=/dev/zero of=/dev/mapper/container status=progress
+# cryptsetup close container
 ```
 
 ### encryption
 ```
+# cryptsetup -v luksFormat /dev/mmcblk2p1
 ```
+`cryptsetup luksDump /dev/mmcblk2p1`で暗号化されているかを確認できる
