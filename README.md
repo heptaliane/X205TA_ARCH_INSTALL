@@ -23,7 +23,8 @@ X205TAにArch Linuxをインストールする自分用のメモ
 ```
 
 ## partition
-ストレージが32GBと心もとないので、付属の32GB micro SDカードを含めたパーテーション構成を作成します
+ストレージが32GBと心もとないので、付属の32GB micro SDカードを含めたパーテーション構成を作成します  
+暗号化が必要な`/home`を除いて、それぞれフォーマットを行います
 
 ### `dev/mmcblk1`
 * `/boot`: 512MB, EFI System, FAT32
@@ -47,4 +48,11 @@ X205TAにArch Linuxをインストールする自分用のメモ
 ```
 # cryptsetup -v luksFormat /dev/mmcblk2p1
 ```
-`cryptsetup luksDump /dev/mmcblk2p1`で暗号化されているかを確認できる
+`cryptsetup luksDump /dev/mmcblk2p1`で暗号化されているかを確認できます  
+
+### format
+```
+# cryptsetup open --type luks /dev/mmcblk2p1 container
+# mkfs.ext4 /dev/mapper/container
+# cryptsetup close container
+```
