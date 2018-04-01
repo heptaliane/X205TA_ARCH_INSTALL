@@ -17,12 +17,13 @@ X205TAにArch Linuxをインストールする自分用のメモ
 4. インストールメディアを指定して起動
 
 ## before install process
-```
+キーマップを日本語配列にします
+``` bash
 $ loadkeys jp106
 ```
 
 ## partition
-ストレージが32GBと心もとないので、付属の32GB micro SDカードを含めたパーテーション構成にします
+ストレージが32GBと心もとないので、付属の32GB micro SDカードを含めたパーテーション構成を作成します
 
 ### `dev/mmcblk1`
 * `/boot`: 512MB, EFI System, FAT32
@@ -31,3 +32,16 @@ $ loadkeys jp106
 
 ### `dev/mmcblk2`
 * `/home`: All, Linux filesystem, ext4, **crypt**
+
+## encryption
+`/home`を暗号化します
+
+### prepare partation
+``` bash
+cryptsetup open --type plain /dev/mmcblk2p1 container --key-file /dev/random
+dd if=/dev/zero of=/dev/mapper/container status=progress
+```
+
+### encryption
+```
+```
