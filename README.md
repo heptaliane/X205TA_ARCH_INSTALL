@@ -7,7 +7,7 @@ X205TAにArch Linuxをインストールする自分用のメモ
 2. Rufusを使用しGPTパーテーションでISOをUSBに書き込む (USBラベルは`ARCH_ISO`にする)
 3. [bootia32.efi](https://github.com/hirotakaster/baytail-bootia32.efi/blob/master/bootia32.efi)
 をUSBの`/EFI/boot/bootia32.efi`に配置
-4. [glub.cfg](https://github.com/heptaliane/X205TA_ARCH_INSTALL/blob/master/grub.cfg)をUSBの`/boot/glub/glub.cfg`に配置
+4. [grub.cfg](https://github.com/heptaliane/X205TA_ARCH_INSTALL/blob/master/grub.cfg)をUSBの`/boot/grub/grub.cfg`に配置
 
 ## boot with install media
 1. F2キーを連打しながら電源を入れる
