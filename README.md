@@ -16,8 +16,13 @@ X205TAにArch Linuxをインストールする自分用のメモ
 4. インストールメディアを指定して起動
 
 ## before install process
+起動時に有線に接続してください  
+また、インターネットへの接続を確認してください
+```
+# ping -c 3 archlinux.jp
+```
+
 キーマップを日本語配列にします  
-また、起動時に有線に接続してください
 ```
 # loadkeys jp106
 ```
@@ -55,4 +60,30 @@ X205TAにArch Linuxをインストールする自分用のメモ
 # cryptsetup open --type luks /dev/mmcblk2p1 container
 # mkfs.ext4 /dev/mapper/container
 # cryptsetup close container
+```
+
+## mount
+```
+# mount /dev/mmcblk1p2 /mnt
+# mkdir /mnt/boot
+# mount /dev/mmcblk1p1 /mnt/boot
+# mkdir /mnt/home
+# cryptsetup open --type luks /dev/mmcblk2p1 container
+# mount /dev/mapper/contaner /mnt/home
+# mkswap /dev/mmcblk1p3
+# swapon /dev/mmcblk1p3
+```
+
+## timedatactl
+```
+# timedatectl set-ntp true
+```
+
+## install base packages
+`/etc/pacman.d/mirrorlist`を編集して日本のサーバーを先頭に配置する  
+`Japan`で検索をかけるとよい
+
+```
+# pacstrap /mnt base base-devel
+```
 ```
