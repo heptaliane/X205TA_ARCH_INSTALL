@@ -143,11 +143,21 @@ administer権限をwheelに与える場合、`visudo`を実行し、`%wheel     
 # mkdir -p /boot/EFI/boot
 # cp /boot/EFI/arch_grub/grubia32.efi /boot/EFI/boot/bootia32.efi
 ```
-`/etc/default/grub`を編集し、以下の行を追加
-```
-GRUB_CMDLINE_LINUX="cryptdevice=/dev/mmcblk2p1:container"
-```
-
+`/etc/default/grub`を編集し、`GRUB_TIMEOUT=0`に設定
 ```
 # grub-mkconfig -o /boot/grub/grub.cfg
+```
+ここまできたらrebootしても動くはず
+
+## setup wireless
+```
+# cp /sys/firmware/efi/efivars/nvram-74b00bd9-805a-4d61-b51f-43268123d113 /lib/firmware/brcm/brcmfmac43340-sdio.txt
+# rmmod brcmfmac
+# modprobe brcmfmac
+```
+ファームウェアは一応インストールされてるっぽい  
+ファームウェア関係で失敗するなら以下を実行
+```
+# wget -qO- https://android.googlesource.com/platform/hardware/broadcom/wlan/+archive/master/bcmdhd/firmware/bcm43341.tar.gz | tar xvz
+# cp fw_bcm43341.bin /lib/firmware/brcm/brcmfmac43340-sdio.bin
 ```
