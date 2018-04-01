@@ -162,3 +162,9 @@ $ modprobe brcmfmac
 $ wget -qO- https://android.googlesource.com/platform/hardware/broadcom/wlan/+archive/master/bcmdhd/firmware/bcm43341.tar.gz | tar xvz
 $ cp fw_bcm43341.bin /lib/firmware/brcm/brcmfmac43340-sdio.bin
 ```
+
+## enable audio
+```
+$ yaourt -S linux-x205ta-sound
+$ grub-mkcofig -o /boot/grub/grub.cfg
+```
