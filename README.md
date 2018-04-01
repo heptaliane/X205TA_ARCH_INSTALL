@@ -149,15 +149,16 @@ administer権限をwheelに与える場合、`visudo`を実行し、`%wheel     
 ```
 ここまできたらrebootしても動くはず
 
-## setup wireless
+## setup wireless network
+
 ```
-# cp /sys/firmware/efi/efivars/nvram-74b00bd9-805a-4d61-b51f-43268123d113 /lib/firmware/brcm/brcmfmac43340-sdio.txt
-# rmmod brcmfmac
-# modprobe brcmfmac
+$ cp /sys/firmware/efi/efivars/nvram-74b00bd9-805a-4d61-b51f-43268123d113 /lib/firmware/brcm/brcmfmac43340-sdio.txt
+$ rmmod brcmfmac
+$ modprobe brcmfmac
 ```
-ファームウェアは一応インストールされてるっぽい  
-ファームウェア関係で失敗するなら以下を実行
+`iw dev`を実行して無線インターフェースが存在していることを確認  
+ファームウェアは一応インストールされてるっぽいが、ファームウェア関係で失敗するなら以下を実行
 ```
-# wget -qO- https://android.googlesource.com/platform/hardware/broadcom/wlan/+archive/master/bcmdhd/firmware/bcm43341.tar.gz | tar xvz
-# cp fw_bcm43341.bin /lib/firmware/brcm/brcmfmac43340-sdio.bin
+$ wget -qO- https://android.googlesource.com/platform/hardware/broadcom/wlan/+archive/master/bcmdhd/firmware/bcm43341.tar.gz | tar xvz
+$ cp fw_bcm43341.bin /lib/firmware/brcm/brcmfmac43340-sdio.bin
 ```
