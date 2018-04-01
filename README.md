@@ -39,28 +39,6 @@ X205TAにArch Linuxをインストールする自分用のメモ
 ### `dev/mmcblk2`
 * `/home`: All, Linux filesystem, ext4, **crypt**
 
-## encryption
-`/home`を暗号化します
-
-### prepare partation
-```
-# cryptsetup open --type plain /dev/mmcblk2p1 container --key-file /dev/random
-# dd if=/dev/zero of=/dev/mapper/container status=progress
-# cryptsetup close container
-```
-
-### encryption
-```
-# cryptsetup -v luksFormat /dev/mmcblk2p1
-```
-`cryptsetup luksDump /dev/mmcblk2p1`で暗号化されているかを確認できます  
-
-### format
-```
-# cryptsetup open --type luks /dev/mmcblk2p1 container
-# mkfs.ext4 /dev/mapper/container
-# cryptsetup close container
-```
 
 ## mount
 ```
@@ -68,11 +46,11 @@ X205TAにArch Linuxをインストールする自分用のメモ
 # mkdir /mnt/boot
 # mount /dev/mmcblk1p1 /mnt/boot
 # mkdir /mnt/home
-# cryptsetup open --type luks /dev/mmcblk2p1 container
-# mount /dev/mapper/contaner /mnt/home
+# mount /dev/mmcblk2p1 /mnt/home
 # mkswap /dev/mmcblk1p3
 # swapon /dev/mmcblk1p3
 ```
+とりあえず`/dev/mmcblk2p1`を未暗号化のままマウント
 
 ## timedatactl
 ```
@@ -86,4 +64,90 @@ X205TAにArch Linuxをインストールする自分用のメモ
 ```
 # pacstrap /mnt base base-devel
 ```
+
+## after install
+```
+# arch-chroot /mnt
+# ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+# hwclock --systohc --utc
+# pacman -S vim
+```
+
+`/etc/locale.gen`を編集し、`en_US.UTF-8 UTF-8`と`ja_JP.UTF-8 UTF-8`をアンコメント
+```
+# locale-gen
+# echo LANG=en_US.UTF-8 > /etc/locale.conf
+# echo KEYMAP=jp106 > /etc/vconsole.conf
+```
+
+```
+# echo ${myhostname} > /etc/hostname
+```
+
+`/etc/hosts`に以下を追記
+```
+127.0.1.1	${myhostname}.localdomain	${myhostname}
+```
+
+`${myhostname}`は適宜置き換えてください
+
+
+## encryption
+`/home`を暗号化します
+
+### prepare partation
+```
+# cryptsetup open --type plain /dev/mmcblk2p1 container --key-file /dev/random
+# dd if=/dev/zero of=/dev/mapper/container status=progress
+# cryptsetup close container
+```
+
+### encryption
+`/home`をアンマウントしておきます
+```
+# umount /home
+```
+`/etc/luks-keys/home`に鍵を保存して暗号化します
+```
+# mkdir -m 700 /etc/luks-keys
+# dd if=/dev/random of=/etc/luks-keys/home bs=1 count=256 status=progress
+# cryptsetup luksFormat -v -s 512 /dev/mmcblk2p1 /etc/luks-keys/home
+# cryptsetup -d /etc/luks-keys/home open /dev/mmcblk2p1 home
+# mkfs.ext4 /dev/mapper/home
+```
+`fstab`の設定を行うためいったんchrootの外に出ます
+```
+# exit
+# mount /dev/mapper/home /mnt/home
+# genfstab -U /mnt >> /mnt/etc/fstab
+# arch-chroot /mnt
+```
+`/etc/crypttab`に以下を追記
+```
+home  /dev/mmcblk2p1    /etc/luks-keys/home
+```
+
+## accounts
+```
+# passwd
+# useradd -m -G wheel ${user}
+# passwd ${user}
+```
+
+administer権限をwheelに与える場合、`visudo`を実行し、`%wheel      ALL=(ALL) ALL`の行をアンコメントする
+
+## setup bootloader
+```
+# pacman -S grub dosfstools efibootmgr
+# grub-install --target=i386-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
+# mkdir -p /boot/EFI/boot
+# cp /boot/EFI/arch_grub/grubia32.efi /boot/EFI/boot/bootia32.efi
+```
+`/etc/default/grub`を編集し、以下の行を追加
+```
+GRUB_CMDLINE_LINUX="cryptdevice=/dev/mmcblk2p1:container"
+```
+
+```
+# grub-mkconfig -o /boot/grub/grub.cfg
 ```
